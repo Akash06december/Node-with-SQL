@@ -3,9 +3,11 @@ const {faker} = require('@faker-js/faker');
 const express = require("express")
 const app = express();
 const path = require("path")
-
+const methodOverride = require("method-override");
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"/views"));
+app.use(methodOverride("_method"));
+app.use(express.urlencoded({extended:true}));
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -80,7 +82,36 @@ app.get("/user/:id/edit",(req,res)=>{
     });
     
     
-})
+});
+
+// UPDATE ROUTE
+app.patch("/user/:id",(req,res)=>{
+    let {id} = req.params;
+    let {password: formpass, username:newUsername} = req.body;
+    let q = `SELECT * FROM user WHERE id='${id}'`;
+    connection.query(q,(err, result) => {
+    if (err) {
+        console.log(err);
+        res.send("Some error in DB");
+        return;
+    }
+    let user = result[0];
+    if(formpass != user.password){
+        res.send("Wrong password");
+    }
+    else{
+        let q2 = `UPDATE user SET username='${newUsername}' WHERE id='${id}'`
+        connection.query(q2,(err,result)=>{
+            if(err){
+                throw err;
+            }
+            res.redirect("/user");
+        });
+        
+    }
+    
+    });
+});
 
 
 app.listen("8080",()=>{
