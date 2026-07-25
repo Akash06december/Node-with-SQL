@@ -26,8 +26,8 @@ let createRandomUser = ()=>{
 
 let users = [
     ["123b", "123_userb", "abc@gmail.comb", "abcb"],
-    ["123c", "123_userc", "abcc@gmail.com", "abcc"]
-];
+        ["123c", "123_userc", "abcc@gmail.com", "abcc"]
+    ];
 
 // 
 
@@ -46,6 +46,7 @@ app.get("/",(req,res)=>{
     });
 });
 
+// List Users Route
 app.get("/user",(req,res)=>{
     
     let q = `SELECT * FROM user`;
@@ -60,6 +61,27 @@ app.get("/user",(req,res)=>{
     });
     
 });
+
+
+// EDIT ROUTE
+app.get("/user/:id/edit",(req,res)=>{
+    let {id} = req.params;
+    let q = `SELECT * FROM user WHERE id='${id}'`;
+    connection.query(q,(err, result) => {
+    if (err) {
+        console.log(err);
+        res.send("Some error in DB");
+        return;
+    }
+    let user = result[0];
+    console.log(result);
+    res.render("edit.ejs",{user});
+    
+    });
+    
+    
+})
+
 
 app.listen("8080",()=>{
     console.log("Server started");
